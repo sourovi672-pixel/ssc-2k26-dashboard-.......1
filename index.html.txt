@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>SSC 2K26 Dashboard</title>
+</head>
+
+<body style="margin:0; font-family:Arial; background:#0f172a; color:white;">
+
+<!-- TOP BAR -->
+<div style="display:flex; justify-content:space-between; padding:15px; background:#111827;">
+  <div>🌐 Chrome 2K26 Dashboard</div>
+  <button onclick="logout()" style="padding:8px 15px; background:red; color:white; border:none; border-radius:6px;">
+    Logout
+  </button>
+</div>
+
+<!-- CONTENT -->
+<div style="text-align:center; padding:20px;">
+
+  <h1>SSC Batch 2K26</h1>
+
+  <!-- IMAGE (NO UPLOAD NEEDED) -->
+  <img src="https://i.imgur.com/8QfQZ5F.png"
+       style="width:100%; max-width:700px; border-radius:12px; margin-top:20px;">
+
+  <p style="font-size:22px; color:#38bdf8; font-weight:bold;">
+    2K26 2.0 🚀
+  </p>
+
+</div>
+
+<script>
+function logout(){
+  alert("Logged out successfully!");
+}
+</script>
+
+</body>
+</html>
