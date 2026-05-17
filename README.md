@@ -1,250 +1,396 @@
-<!doctype html>
+# Quotex Style Candle Trading Website (HTML + CSS + JS)
+
+```html
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>S.trading — Candles Demo (Simulated Trading)</title>
-  <style>
-    :root{
-      --bg:#0c1218; --panel:#0b1116; --muted:#9fb0c8; --accent:#0A84FF; --green:#1fc27b; --red:#ff6b6b;
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trading Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-chart-financial"></script>
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, sans-serif;
+}
+
+body{
+    background:#0d1323;
+    color:white;
+    overflow:hidden;
+}
+
+.container{
+    display:flex;
+    height:100vh;
+}
+
+.sidebar{
+    width:80px;
+    background:#111827;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding-top:20px;
+    gap:20px;
+    border-right:1px solid rgba(255,255,255,0.08);
+}
+
+.logo{
+    font-size:26px;
+}
+
+.side-btn{
+    width:55px;
+    height:55px;
+    background:#1f2937;
+    border-radius:14px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    cursor:pointer;
+    transition:0.3s;
+    font-size:22px;
+}
+
+.side-btn:hover{
+    background:#2563eb;
+    transform:scale(1.05);
+}
+
+.main{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+}
+
+.topbar{
+    height:70px;
+    background:#111827;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 20px;
+    border-bottom:1px solid rgba(255,255,255,0.08);
+}
+
+.market-tabs{
+    display:flex;
+    gap:12px;
+}
+
+.tab{
+    background:#1f2937;
+    padding:10px 18px;
+    border-radius:10px;
+    font-size:14px;
+    color:#fff;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.tab:hover{
+    background:#2563eb;
+}
+
+.balance{
+    background:#16a34a;
+    padding:10px 20px;
+    border-radius:10px;
+    font-weight:bold;
+}
+
+.content{
+    flex:1;
+    display:flex;
+}
+
+.chart-section{
+    flex:1;
+    background:#0f172a;
+    position:relative;
+    padding:20px;
+}
+
+canvas{
+    width:100% !important;
+    height:100% !important;
+}
+
+.trade-panel{
+    width:260px;
+    background:#111827;
+    padding:20px;
+    border-left:1px solid rgba(255,255,255,0.08);
+}
+
+.trade-box{
+    background:#1f2937;
+    border-radius:18px;
+    padding:20px;
+}
+
+.trade-box h2{
+    margin-bottom:20px;
+    font-size:20px;
+}
+
+.input-group{
+    margin-bottom:18px;
+}
+
+.input-group label{
+    display:block;
+    margin-bottom:8px;
+    color:#9ca3af;
+}
+
+.input-group input{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:10px;
+    background:#0f172a;
+    color:white;
+    font-size:16px;
+}
+
+.btn{
+    width:100%;
+    padding:15px;
+    border:none;
+    border-radius:12px;
+    font-size:18px;
+    font-weight:bold;
+    cursor:pointer;
+    margin-top:12px;
+    transition:0.3s;
+}
+
+.up{
+    background:#16a34a;
+    color:white;
+}
+
+.down{
+    background:#dc2626;
+    color:white;
+}
+
+.btn:hover{
+    opacity:0.8;
+    transform:scale(1.02);
+}
+
+.live-dot{
+    width:10px;
+    height:10px;
+    background:#22c55e;
+    border-radius:50%;
+    animation:pulse 1s infinite;
+    display:inline-block;
+    margin-right:8px;
+}
+
+@keyframes pulse{
+    0%{transform:scale(1);opacity:1}
+    50%{transform:scale(1.7);opacity:0.4}
+    100%{transform:scale(1);opacity:1}
+}
+
+.price-box{
+    position:absolute;
+    top:20px;
+    left:20px;
+    background:#111827;
+    padding:10px 16px;
+    border-radius:12px;
+    font-size:18px;
+    font-weight:bold;
+    z-index:10;
+}
+
+@media(max-width:1000px){
+    .trade-panel{
+        display:none;
     }
-    *{box-sizing:border-box}
-    body{margin:0;font-family:Inter,Segoe UI,Roboto,Arial;background:linear-gradient(180deg,#071026,#0b1220);color:#e6eef8}
-    .frame{max-width:1200px;margin:18px auto;border-radius:8px;overflow:hidden}
-    .topbar{display:flex;justify-content:space-between;padding:12px 16px;background:rgba(255,255,255,0.02);align-items:center}
-    .left{display:flex;align-items:center;gap:10px}
-    .logo{width:36px;height:36px;border-radius:6px;background:linear-gradient(90deg,var(--accent),#0066D6);display:flex;align-items:center;justify-content:center;font-weight:700}
-    .title{font-weight:700}
-    .main{display:flex;gap:12px;padding:14px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00))}
-    .chart-area{flex:1;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));border-radius:8px;padding:8px;position:relative;height:540px}
-    .panel{width:300px;background:var(--panel);padding:12px;border-radius:8px;color:var(--muted)}
-    .pair{font-weight:700;margin-bottom:6px}
-    .price{font-size:20px;margin-bottom:12px}
-    .controls{display:flex;gap:8px;margin-bottom:12px}
-    button{background:var(--accent);border:none;color:#fff;padding:8px;border-radius:6px;cursor:pointer}
-    button[disabled]{opacity:0.5}
-    .order-section label{display:block;margin:8px 0;color:var(--muted);font-size:13px}
-    input,select{width:100%;padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:#fff}
-    .place{margin-top:8px;background:linear-gradient(90deg,var(--accent),#0066D6);border:none;padding:10px;border-radius:6px;cursor:pointer}
-    #orders{list-style:none;padding:0;margin:0;max-height:180px;overflow:auto}
-    #orders li{padding:8px;border-bottom:1px dashed rgba(255,255,255,0.03);font-size:13px;color:var(--muted)}
-    .price-line{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:rgba(10,132,255,0.12);padding:6px 10px;border-radius:12px;color:#fff;border:1px solid rgba(10,132,255,0.35)}
-    .foot{text-align:center;padding:12px;color:var(--muted);font-size:13px;margin-top:8px}
-    /* ensure canvas fills area */
-    #candleChart{width:100% !important; height:100% !important; display:block}
-  </style>
-  <!-- Chart.js CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    .sidebar{
+        width:65px;
+    }
+}
+</style>
 </head>
 <body>
-  <div class="frame">
-    <header class="topbar">
-      <div class="left"><div class="logo">SA</div><div class="title">S.trading</div></div>
-      <div class="right">Demo Candles</div>
-    </header>
 
-    <main class="main">
-      <section class="chart-area">
-        <canvas id="candleChart"></canvas>
-        <div class="price-line" id="priceLine"></div>
-      </section>
+<div class="container">
 
-      <aside class="panel">
-        <div class="pair">BTC/USDT</div>
-        <div class="price" id="livePrice">29,500.00</div>
+    <div class="sidebar">
+        <div class="logo">☰</div>
+        <div class="side-btn">📈</div>
+        <div class="side-btn">💰</div>
+        <div class="side-btn">⚙</div>
+        <div class="side-btn">👤</div>
+    </div>
 
-        <div class="controls">
-          <button id="start">Start</button>
-          <button id="stop" disabled>Stop</button>
-          <button id="reset">Reset</button>
+    <div class="main">
+
+        <div class="topbar">
+            <div class="market-tabs">
+                <div class="tab">GBP/USD 80%</div>
+                <div class="tab">USD/CAD 77%</div>
+                <div class="tab">AUD/USD 85%</div>
+            </div>
+
+            <div class="balance">Demo $9999</div>
         </div>
 
-        <div class="order-section">
-          <h4>Place Order (demo)</h4>
-          <label>Type
-            <select id="orderType"><option value="buy">Buy</option><option value="sell">Sell</option></select>
-          </label>
-          <label>Amount <input id="amt" type="number" value="0.01" step="0.01"></label>
-          <label>Price <input id="priceIn" type="number" value="29500" step="0.01"></label>
-          <button id="place" class="place">Place Order</button>
-          <h4>Orders</h4>
-          <ul id="orders"></ul>
+        <div class="content">
+
+            <div class="chart-section">
+
+                <div class="price-box">
+                    <span class="live-dot"></span>
+                    LIVE MARKET
+                </div>
+
+                <canvas id="tradingChart"></canvas>
+            </div>
+
+            <div class="trade-panel">
+
+                <div class="trade-box">
+                    <h2>Trade Panel</h2>
+
+                    <div class="input-group">
+                        <label>Amount</label>
+                        <input type="number" value="1">
+                    </div>
+
+                    <div class="input-group">
+                        <label>Time</label>
+                        <input type="text" value="00:01:00">
+                    </div>
+
+                    <button class="btn up">UP</button>
+                    <button class="btn down">DOWN</button>
+                </div>
+
+            </div>
+
         </div>
-      </aside>
-    </main>
-    <footer class="foot">Demo only — no real trading</footer>
-  </div>
 
-  <script>
-    // high-fidelity candlestick simulation + demo matching for frontend-only trading
-    const ctx = document.getElementById('candleChart').getContext('2d');
-    let running=false, feedInterval=null;
-    const livePriceEl = document.getElementById('livePrice');
-    const priceLineEl = document.getElementById('priceLine');
-    const ordersEl = document.getElementById('orders');
+    </div>
 
-    // generate initial OHLC data
-    function genOHLC(count=80, start=29500){
-      const out=[]; let price=start;
-      for(let i=0;i<count;i++){
-        const o = price;
-        const c = price * (1 + (Math.random()-0.5)/40);
-        const h = Math.max(o,c) * (1 + Math.random()/80);
-        const l = Math.min(o,c) * (1 - Math.random()/80);
-        out.push({t: new Date(Date.now() - (count-i)*60000), o, h, l, c, v: Math.floor(Math.random()*1200)});
-        price = c;
-      }
-      return out;
-    }
-    let candles = genOHLC(80,29500);
+</div>
 
-    // build chart
-    function buildChart(){
-      const labels = candles.map(d=>d.t.toLocaleTimeString());
-      const closeVals = candles.map(d=>d.c);
-      const bgColors = candles.map(d=> d.c>=d.o ? '#1fc27b' : '#ff6b6b');
+<script>
+const ctx = document.getElementById('tradingChart');
 
-      if(window.candleChart) window.candleChart.destroy();
+function randomCandle(prevClose){
+    const open = prevClose;
+    const close = open + (Math.random() - 0.5) * 10;
+    const high = Math.max(open, close) + Math.random() * 5;
+    const low = Math.min(open, close) - Math.random() * 5;
 
-      window.candleChart = new Chart(ctx, {
-        type:'bar',
-        data:{
-          labels,
-          datasets:[
-            {
-              type:'line',
-              label:'wickHigh',
-              data: candles.map(d=>d.h),
-              borderColor:'#9fb0c8',
-              borderWidth:1,
-              pointRadius:0,
-              tension:0,
-              yAxisID:'y'
-            },
-            {
-              type:'bar',
-              label:'body',
-              data: closeVals,
-              backgroundColor:bgColors,
-              barPercentage:1.0,
-              categoryPercentage:1.0,
-              borderRadius:3,
-              yAxisID:'y'
-            }
-          ]
-        },
-        options:{
-          animation:false,
-          responsive:true,
-          maintainAspectRatio:false,
-          scales:{
-            x:{display:false},
-            y:{
-              grid:{color:'rgba(255,255,255,0.03)'},
-              position:'right'
-            }
-          },
-          plugins:{
-            tooltip:{
-              enabled:true,
-              callbacks:{
-                title:(items)=> candles[items[0].dataIndex].t.toLocaleString(),
-                label:(ctx)=>{
-                  const i = ctx.dataIndex; const d = candles[i];
-                  return ['O: '+d.o.toFixed(2), 'H: '+d.h.toFixed(2), 'L: '+d.l.toFixed(2), 'C: '+d.c.toFixed(2), 'V: '+d.v];
-                }
-              },
-              backgroundColor:'#0b1116',
-              borderColor:'rgba(255,255,255,0.06)',
-              borderWidth:1,
-              titleColor:'#fff',
-              bodyColor:'#cfe7ff'
-            },
-            legend:{display:false}
-          },
-          interaction:{mode:'index',intersect:false}
-        }
-      });
-      livePriceEl.textContent = candles[candles.length-1].c.toFixed(2);
-      priceLineEl.textContent = '$' + candles[candles.length-1].c.toFixed(2);
-    }
-    buildChart();
-
-    // feed: append new candle periodically
-    function pushCandle(){
-      const last = candles[candles.length-1];
-      const o = last.c;
-      const c = o * (1 + (Math.random()-0.5)/40);
-      const h = Math.max(o,c)*(1 + Math.random()/80);
-      const l = Math.min(o,c) * (1 - Math.random()/80);
-      const v = Math.floor(Math.random()*1200);
-      const next = {t:new Date(), o,h,l,c,v};
-      candles.push(next); if(candles.length>120) candles.shift();
-
-      candleChart.data.labels = candles.map(d=>d.t.toLocaleTimeString());
-      candleChart.data.datasets[0].data = candles.map(d=>d.h);
-      candleChart.data.datasets[1].data = candles.map(d=>d.c);
-      candleChart.data.datasets[1].backgroundColor = candles.map(d=> d.c>=d.o ? '#1fc27b' : '#ff6b6b');
-      candleChart.update('none');
-
-      livePriceEl.textContent = next.c.toFixed(2);
-      priceLineEl.textContent = '$' + next.c.toFixed(2);
-    }
-
-    // controls
-    document.getElementById('start').onclick = ()=>{
-      if(running) return;
-      running=true; document.getElementById('start').disabled=true; document.getElementById('stop').disabled=false;
-      feedInterval = setInterval(pushCandle,1500);
+    return {
+        o: open,
+        h: high,
+        l: low,
+        c: close
     };
-    document.getElementById('stop').onclick = ()=>{
-      running=false; clearInterval(feedInterval); document.getElementById('start').disabled=false; document.getElementById('stop').disabled=true;
-    };
-    document.getElementById('reset').onclick = ()=>{
-      clearInterval(feedInterval); running=false; document.getElementById('start').disabled=false; document.getElementById('stop').disabled=true;
-      candles = genOHLC(80,29500); buildChart();
-    };
+}
 
-    // simple demo matching: place orders and execute immediately if price compatible
-    document.getElementById('place').onclick = ()=>{
-      const type = document.getElementById('orderType').value;
-      const amt = parseFloat(document.getElementById('amt').value)||0;
-      const price = parseFloat(document.getElementById('priceIn').value)||0;
-      const cur = candles[candles.length-1].c;
-      const li = document.createElement('li');
-      const time = new Date().toLocaleTimeString();
+let data = [];
+let lastClose = 100;
 
-      // simple immediate execution rules for demo:
-      let status='Placed';
-      if((type==='buy' && price >= cur) || (type==='sell' && price <= cur)){
-        status = 'Executed';
-      }
-      li.textContent = `${time} — ${type.toUpperCase()} ${amt} @ ${price.toFixed(2)} — ${status}`;
-      ordersEl.prepend(li);
-      // if executed, push small price impact
-      if(status==='Executed'){
-        const impact = (type==='buy'?1: -1) * (amt/10) * (Math.random()/100);
-        candles[candles.length-1].c = candles[candles.length-1].c * (1 + impact);
-        buildChart();
-      }
-    };
+for(let i=0;i<30;i++){
+    const candle = randomCandle(lastClose);
+    lastClose = candle.c;
 
-    // basic crosshair: show horizontal price badge following mouse Y
-    const canvas = document.getElementById('candleChart');
-    canvas.addEventListener('mousemove', (e)=>{
-      const rect = canvas.getBoundingClientRect();
-      const y = e.clientY - rect.top;
-      const chartArea = candleChart.chartArea;
-      if(y < chartArea.top || y > chartArea.bottom) { priceLineEl.style.display='none'; return; }
-      priceLineEl.style.display='block';
-      const scale = candleChart.scales.y;
-      const val = scale.getValueForPixel(y);
-      priceLineEl.textContent = '$' + val.toFixed(2);
-      priceLineEl.style.top = (y - 12) + 'px';
+    data.push({
+        x: new Date(Date.now() + i * 60000),
+        o: candle.o,
+        h: candle.h,
+        l: candle.l,
+        c: candle.c
     });
-    // hide on leave
-    canvas.addEventListener('mouseleave', ()=>{ priceLineEl.style.display='none'; });
-    canvas.addEventListener('mouseenter', ()=>{ priceLineEl.style.display='block'; });
-  </script>
+}
+
+const chart = new Chart(ctx, {
+    type:'candlestick',
+    data:{
+        datasets:[{
+            label:'Market',
+            data:data,
+            borderColor:'#fff',
+            color:{
+                up:'#16a34a',
+                down:'#ef4444',
+                unchanged:'#999'
+            }
+        }]
+    },
+    options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        plugins:{
+            legend:{display:false}
+        },
+        scales:{
+            x:{
+                ticks:{color:'#9ca3af'},
+                grid:{color:'rgba(255,255,255,0.05)'}
+            },
+            y:{
+                ticks:{color:'#9ca3af'},
+                grid:{color:'rgba(255,255,255,0.05)'}
+            }
+        }
+    }
+});
+
+setInterval(()=>{
+    const last = data[data.length - 1];
+
+    const candle = randomCandle(last.c);
+
+    data.push({
+        x:new Date(),
+        o:candle.o,
+        h:candle.h,
+        l:candle.l,
+        c:candle.c
+    });
+
+    if(data.length > 40){
+        data.shift();
+    }
+
+    chart.update();
+},2000);
+</script>
+
 </body>
 </html>
+```
+
+## Run করার নিয়ম
+
+1. `index.html` নামে save করো
+2. Browser এ open করো
+3. Live candle chart দেখতে পাবে
+4. Mobile + PC দুইটাতেই কাজ করবে
+
+## Features
+
+* Real style candle chart
+* Green/Red live candles
+* Quotex style UI
+* Trading buttons
+* Dark futuristic theme
+* Responsive design
+* Animated live market effect
